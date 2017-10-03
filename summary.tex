@@ -1,0 +1,709 @@
+% ----------------------------------------------------------------
+% Article Class (This is a LaTeX2e document)  ********************
+% ----------------------------------------------------------------
+\documentclass[11pt,letter]{article}
+\usepackage[scale=0.8,hmarginratio=1:1,vmarginratio=1:1]{geometry}
+\usepackage[english]{babel}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{mathrsfs}
+\usepackage{epstopdf}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage[onehalfspacing]{setspace}
+\usepackage{sgame}
+\usepackage{palatino}
+%\usepackage{kotex}
+\usepackage[authoryear,comma,longnamesfirst,sectionbib]{natbib}
+\usepackage{tikz}
+\newcommand*\circled[1]{\tikz[baseline=(char.base)]{
+		\node[shape=circle,draw,inner sep=0.5pt] (char) {#1};}}
+\usetikzlibrary{fit,positioning}
+
+
+
+% Pagestyle
+\pagestyle{fancy}
+\lhead{Notes on Value of Flexibility}
+\rhead{Fall 2017}
+
+% Text Margins
+%\addtolength{\voffset}{-1cm}
+%\addtolength{\hoffset}{-1.5cm}
+%\addtolength{\textheight}{70pt}
+%\addtolength{\textwidth}{65pt}
+
+% Macros
+\def\a{\alpha} \def\b{\beta} \def\g{\gamma} \def\d{\delta} \def\r{\rho}
+\def\e{\epsilon} \def\ve{\varepsilon} \def\k{\kappa} \def\p{\pi} \def\th{\theta}
+\def\l{\lambda} \def\m{\mu} \def\s{\sigma} \def\t{\tau} \def\w{\omega}
+\def\D{\Delta} \def\G{\Gamma} \def\W{\Omega} \def\P{\Phi} \def\L{\Lambda} \def\Th{\Theta} \def\z{\zeta}
+\def\bdm{\begin{displaymath}} \def\edm{\end{displaymath}}
+\def\bni{\begin{itemize}} \def\ei{\end{itemize}}
+\def\bnen{\begin{enumerate}} \def\een{\end{enumerate}}
+\def\fa{\forall}
+\def\be{\begin{equation}} \def\ee{\end{equation}}
+\def\fn{\footnote} \def\bn{\begin} \def\nit{\noindent}
+\def\iff{\textit{~if and only if~~}}
+
+% THEOREMS ---------------------------------------------------------------------------------
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{cor}[thm]{Corollary}
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{prop}[thm]{Proposition}
+\newtheorem{claim}{Claim}
+\theoremstyle{definition}
+\newtheorem{defn}[thm]{Definition}
+\theoremstyle{remark}
+\newtheorem{rem}[thm]{Remark}
+\numberwithin{equation}{section}
+
+% ----------------------------------------------------------------------------------------
+\begin{document}
+
+\title{Notes on Value of Flexibility}
+\author{Byung-Hee Choi}%
+%\address{}%
+%\thanks{adddd}%
+\date{\today}%
+% ----------------------------------------------------------------------------------------
+%\begin{abstract}
+
+%\end{abstract}
+\maketitle
+% ----------------------------------------------------------------------------------------
+\section{Introduction}
+
+A traded option is a contract which gives to its owner the right, not the obligation, to buy (\textit{call option}) or to sell (\textit{put option}) a fixed quantity of underlying assets of a specified common stock at a fixed price (\textit{striking price}) on or before a given date (\textit{expiry date}). When the transaction involved in the option takes place the option has been \textit{exercised}. In this note, we focus on \textit{European} and \textit{American} call options on underlying assets which may have continuous (or discrete) dividends. European option may be exercised only on the expiry date while the American option may be exercised on any moment before the expiry date. In any case, when the option is exercised, the owner pays the striking price and receives the underlying assets.
+
+This note is organized as follows. %\cite{black1973pricing} is summarized with applications of American and European call options in the next section. Analytical and Numerical approaches of valuing options are introduced in Section 3. Numerical methods are described in detail both in Section 4 and 5. The concept of value of flexibility will be given in Section 6.
+
+
+\section{Stochastic Processes}
+A stochastic process amounts to a series of data, e.g. a time-series. It is a typical procedure to make distributional assumption about the series we are interested in and then determine what the assumption implies. If $\{S_0,\cdots,S_T\}$ is the series of interest, we can express the distribution of $S_t$ conditional on the first $t-1$ values of $S$ as $f(S_t|S_0=s_0,\cdots,S_{t-1}=s{t-1})$. Stochastic processes are in continuous-time framework as the distance between period $t$ and period $t-1$ becomes arbitrarily small.
+
+Two continuous-time stochastic processes are generally applied for modeling the stochastic process of an underlying asset and valuing contingent option: geometric Brownian motion and mean reverting process.
+
+
+\subsection{Geometric Brownian Motion}
+Geometric Brownian motion (GBM) is a continuous-time stochastic process in which the logarithm of the randomly varying quantity follows a Wiener process with drift. It is an important example of stochastic processes satisfying a stochastic differential equation (SDE). In particular, it is used in mathematical finance to model stock prices in the Black–Scholes model. Technically, a stochastic process $S$ follows GBM if it satisfies the SDE:
+\begin{align*}
+    dS=\a Sdt+\s SdW
+\end{align*}
+where $\m$ and $\s$ represent the drift and the volatility, respectively, and $W$ is a Wiener process. Some properties of GBM are the followings: (1) it grows at an exponential rate, (2) the distribution of $\ln(S_t)$ given $S_0$ is normally distributed, (3) the expected value of $S_t$ conditional on $S_0$ is $E(S_t)=X_t\exp\{\a t\}$, and (4) the variance of $S_t$ goes to infinity as $t\rightarrow\infty$.
+
+\subsection{Mean Reverting Process}
+There are instances when the underlying asset prices modeled do not follow a stochastic process similar to a GBM. A common example is the market price of many types of commodities, which may instead follow a mean reverting stochastic process.
+
+Mean reverting process (MR) is a type of Markov process where the sign and degree of the drift are dependent on the current level of a variable, which reverts to a long-term equilibrium level that we typically assume is the long-term mean. The simplest form of mean reverting process is an arithmetic mean reverting process, also called an the one-factor Ornstein-Uhlenbeck process, which has the following form:
+\begin{align*}
+    dS=\eta(\bar{S}-S)dt+\s dW.
+\end{align*}
+\indent For commodity price modelling, $S$ is the log of price, $\eta$ is the mean reversion coefficient, $\bar{S}$ is the log of the long-term mean price, $\s$ is the process of volatility, and $dW$ is a Wiener process. Some of properties of MR are the followings: (1) it constantly reverts to long-term mean price $\bar{S}$ at a speed $\eta$, (2) the expected value of $S_t$ conditional on $S_0$ is $E(S_t)=\bar{S}+(S_0-\bar{S})e^{-\eta t}$, and (3) the variance of $S_t$ goes to $var(S_t)\rightarrow\s^2/2\eta$ when $t\rightarrow\infty$, as opposed to the case with a GBM. Variations of MR process include the geometric MR (\cite{dixit1994investment}), given by $dS/S=\eta(\bar{S}-S)dt+\s dW$, and a similar proposed by \cite{bhattacharya1978project}, which is given by $dS=\eta(\bar{S}-S)dt+\s SdW$.
+
+\subsection{Applicability of Different Stochastic Processes}
+It is a complicated issue how to apply the different stochastic processes into particular types of problems. It may be possible and appropriate to use GBM models in such cases as short duration price series. Artithmetic MR with a fixed long-term equilibrium price may work better in general, but can also be too simplistic in some instances. In such cases, the best approach might be to combine a MR model with a GBM for the equilibrium level although such process is more difficult to implement for valuatioin purposes.
+
+In order to select an appropriate stochastic process for modeling commodity price or any other variable, the best approach is to rely on both theoretical considerations, such as equilibrium mechanisms, as well as statistical tests. The logic of a mean reverting process comes from microeconomics; when prices are below their long-term mean, demand for the product tends to rise while its production tends to diminish. The opposite happen if prices are above their long-term mean. 
+
+
+\section{\cite{black1973pricing}}
+
+\cite{black1973pricing} describes the behavior of an American and a European options on the underlying assets whose prices follow a geometric Brownian motion that satisfies the following stochastic differential equation:
+\begin{align}
+    dS=\m Sdt+\s SdW
+\end{align}
+where the parameters $\m$ and $\s$ are the drift and the volatility measuring average rate of growth of the asset price and the standard deviation the returns, respectively. The quantity $dW$ is a random variable having a normal distribution with mean zero and variance $dt$.
+
+Suppose that we have an option whose value $V$ depends on $S$ and $t$, i.e. $V=V(S,t)$. Applying Ito's lemma we obtain
+\begin{align}
+    dV=\s S\frac{\partial V}{\partial S}dW_t+\bigg(\m S\frac{\partial V}{\partial S}+\frac{1}{2}\s^2S^2\frac{\partial^2V}{\partial S^2}+\frac{\partial V}{\partial t}\bigg)dt.
+\end{align}
+Our aim is to eliminate the randomness produced by the quantity $dW_t$. For this, consider a portifolio $\Pi$ containing one option and $-\D$ units of the underlying asset, i.e. $\Pi=V-\D S$. By total differentiation, we have
+\begin{align}
+    d\Pi=dV-\D dS.
+\end{align}
+Replacing $dV$ and $dS$ by equations (2.1) and (2.2), respectively, we obtain
+\begin{align}
+    d\Pi=\s S\bigg(\frac{\partial V}{\partial S}-\D\bigg)dW_t+\bigg(\m S\frac{\partial V}{\partial S}+\frac{1}{2}\s^2S^2\frac{\partial^2V}{\partial S^2}+\frac{\partial V}{\partial t}-\m\D S\bigg)dt.
+\end{align}
+Thus, we must choose $\D=\partial V/\partial S$ to eliminate the randomness and get
+\begin{align}
+    d\Pi=\bigg(\frac{1}{2}\s^2S^2\frac{\partial^2V}{\partial S^2}+\frac{\partial V}{\partial t}\bigg)dt.
+\end{align}
+
+\subsection{European Call Option}
+Assuming that there is no arbitrage and $\Pi$ is invested in riskless assets, it would see $d\Pi=r\Pi dt$ where $r$ is risk-free interest rate. By substituting this equation into (2.5), we can derive the Black-Scholes partial differential equation that describes the behavior of a European option:
+\begin{align}
+    \frac{\partial V}{\partial t}+\m S\frac{\partial V}{\partial S}+\frac{1}{2}\s^2S^2\frac{\partial^2V}{\partial S^2}-r V=0.
+\end{align}
+From this condition, we can define the problem on valuation of European option. It also includes three boundary conditions:
+\begin{align}
+    \frac{\partial V}{\partial t}+\m S\frac{\partial V}{\partial S}+\frac{1}{2}\s^2S^2\frac{\partial^2V}{\partial S^2}-r V=0\\
+    V(S,T)=\max\{S-K,0\}\\
+    \lim_{S\rightarrow0}V(S,t)=0\\
+    \lim_{S\rightarrow\infty}V(S,t)=S
+\end{align}
+
+
+\subsection{American Call Option}
+Let $f(S,t)$ be the payoff of the option if it is exercised with a striking price $K$ at time $t$ . Since American option gives the owner the right to exercise the option at any time before expiry date, the arbitrage argument used for European option no longer leads to a unique value for the return on the portfolio, but only for an inequality. This means that the return on $\Pi$ cannot be greater than the return on a riskless investment, i.e. $d\Pi\le \m\Pi dt$. Therefore, the Black-Scholes partial differentiation equation only can be derived in the form of inequality:
+\begin{align}
+    \frac{\partial V}{\partial t}+\m S\frac{\partial V}{\partial S}+\frac{1}{2}\s^2S^2\frac{\partial^2V}{\partial S^2}-r V\le0.
+\end{align}
+Assuming again there is no arbitrage, we have the following condition:
+\begin{align}
+    V(S,t)\ge f(S,t)=S-K.
+\end{align}
+From these two conditions and with initial boundary conditions, we can define the problem on valuation of American option through the following linear complementarity problem, which is also called the free-boundary problem:
+\begin{align}
+    \bigg(\frac{\partial V}{\partial t}+\m S\frac{\partial V}{\partial S}+\frac{1}{2}\s^2S^2\frac{\partial^2V}{\partial S^2}-r V\bigg)\bigg(V(S,t)-f(S,t)\bigg)=0\\
+    \frac{\partial V}{\partial t}+\m S\frac{\partial V}{\partial S}+\frac{1}{2}\s^2S^2\frac{\partial^2V}{\partial S^2}-rV\le0\\
+    f(S,t)-V(S,t)\le0\\
+    V(S,T)=\max\{S-K,0\}\\
+    \lim_{S\rightarrow0}V(S,t)=0\\
+    \lim_{S\rightarrow\infty}V(S,t)=S
+\end{align}
+
+
+\section{Analytical and Numerical Valuation Methods}
+Broadly, the valuation methods of American and European options can be classified with two main avenues: analytical and numerical methods. Analytical methods can be divided again into closed-form solutions and approximative analytical solutions. Much work in this area was characterized by these analytical solutions that offer a nice solution to simplified problems that seldom reflect reality. The summary on general model of real option I uploaded last time is one of applications that focus on valuing the option quantitatively by deriving analytic, closed-form solutions.
+
+One of disadvantages inherent in most of analytical approaches is that the option pricing problems need to be simplified in order to be analytically tractable. This means that for an option pricing problem one must be in the position to write down the describing partial differentiation equation with the underlying stochastic process. In practice this is almost never the case. It is more likely to be the case of complex options which need to take account of interactions between options making impossible to handle in an analytical approach, i.e., option packages with many different types of options.
+
+The ability to value such complex options has been enhanced through various numerical methods. These can be also divided again into methods to approximate the partial differential equation and methods to approximate the underlying stochastic process.
+
+\section{Numerical Methods: Approximation of the partial differential equation}
+    This type of approximation includes numerical integration as well as finite difference methods. The methods of finite differences can only be applied if the time development of the option value can be described via a partial differential equation. This implies that it is sufficient to build a partial differential equation; a closed-form solution does not need to exist. The finite difference approach discretizes the partial differential equation. Specific difference method derives from the way the resulting grid is solved: the implicit-, the explicit-, or the hybrid finite difference methods. Moreover, the underlying assets can be log-transformed before discretizing the partial differential equation, which yields better mathematical properties for the finite difference method. An important point is that the finite difference method gives option values for many different initial values for the underlying assets, something lattice approaches do not provide.
+    
+\subsection{Finite difference methods for European call option} 
+Consider a problem of European option defined in \cite{black1973pricing}. This method uses finite difference equations to approximate the partial differential equation given in the problem. We first discretize the domain of the problem and then retrieve the value of the internal values using its boundary conditions. In this work, we study the explicit and the implicit methods.
+    \begin{itemize}
+        \item[(1)] \textbf{Space discretization.} The interval $[0,T]$ is divided into $M$ equally sized subintervals of length $\D t$. The price of the underlying asset will take values in the unbounded interval $[0,\infty)$. However, an artificial limit $S_{\max}$ is introduced and the interval $[0,S_{\max}]$ is divided into $N$ equally sized subintervals of length $\D S$. Hence the space $[0,S_{\max}]\times[0,T]$ is approximated by a grid
+        \begin{align}
+            (n\D S,m\D t)\in[0,S_{\max}]\times[0,T],~~~~~~~~~n=0,\cdots,N~\text{and}~m=0,\cdots,M.
+        \end{align}
+        
+        \item[(2)] \textbf{Explicit method.} Let $v_n^m$ be the numerical approximation of $V(n\D S,m\D t)$. We use a forward difference approximation for the time derivative, a central difference approximation for the first-order derivative of $S$, and a symmetric central difference approximation for the second-order derivative of $S$:
+        \begin{align}
+            \frac{\partial V}{\partial t}(n\D S,m\D t)&=\frac{v_n^{m+1}-v_n^m}{\D t}+O(\D t)\\
+            \frac{\partial V}{\partial S}(n\D S,m\D t)&=\frac{v_{n+1}^m-v_{n-1}^m}{2\D S}+O((\D S)^2)\\
+            \frac{\partial^2 V}{\partial S^2}(n\D S,m\D t)&=\frac{v_{n+1}^m-2v_n^m+v_{n-1}^m}{2\D S}+O((\D S)^2)
+        \end{align}
+        By substituting these approximations into the partial differential equation in the problem, we obtain the discretization of the equation:
+        \begin{align}
+            v_n^{m+1}=\frac{1}{2}(\s^2n^2\D t-rn\D t)v_{n-1}^m+(1-\s^2n^2\D t-r\D t)v_n^m+\frac{1}{2}(\s^2n^2\D t+rn\D t)v_{n+1}^m
+        \end{align}
+        where $n=1,\cdots,N-1$ and $m=1,\cdots,M-1$. We observe that the term $v_n^{m+1}$ is evaluated by using the terms $v_n-1^m$, $v_n^m$, $v_n+1^m$ from one time step back $m$. Since we know initial values $v^0_n$, $v^m_0$, and $v^m_N$ with $n=0,\cdots,N$ and $m=0,\cdots,M$ from the boundary conditions in the problem, we can calculate all of the values for the next time step one by one. Note that the explicit method is stable if and only if $\D t\in(0,1/(\s^2(N-1)+(1/2)r)$.
+        
+        \item[(3)] \textbf{Implicit method.} Here we use a backward difference approximation for the time derivative:
+        \begin{align}
+            \frac{\partial V}{\partial t}(n\D S,(m+1)\D t)&=\frac{v_n^{m+1}-v_n^m}{\D t}+O(\D t)\\
+            \frac{\partial V}{\partial S}(n\D S,(m+1)\D t)&=\frac{v_{n+1}^{m+1}-v_{n-1}^{m+1}}{2\D S}+O((\D S)^2)\\
+            \frac{\partial^2 V}{\partial S^2}(n\D S,(m+1)\D t)&=\frac{v_{n+1}^{m+1}-2v_n^{m+1}+v_{n-1}^{m+1}}{2\D S}+O((\D S)^2)
+        \end{align}
+        By using the similar work in the explicit method, we obtain the discretization of the partial differential equation in which the term $v_n^m$ is evaluated using the terms $v_{n-1}^{m+1}$, $v_n^{m+1}$, and $v_{n+1}^{m+1}$: 
+        \begin{align*}
+            v_n^m=\frac{1}{2}(rn\D t-\s^2n^2\D t)v_{n-1}^{m+1}+(1+r\D t+\s^2n^2\D t)v_n^{m+1}-\frac{1}{2}(rn\D t+\s^2n^2\D t)v_{n+1}^{m+1}
+        \end{align*}
+        where $n=1,\cdots,N-1$ and $m=1,\cdots,M-1$.
+        The implicit methods is unconditionally stable.
+    \end{itemize}
+    
+\subsection{Finite difference methods for American call option}
+Consider an American option whose payoff $f$ depends on $S$ at the time of exercising the option. Then, the simplest possibility to value the option is to modify a finite difference method of calculating the values of European option so that at the end of each time step we take the maximum of the computed values of $v_n^m$ and the payoff function:
+    \begin{align}
+        v_n^m=\max\Big\{v_n^m,f(n\D S)\Big\}.
+    \end{align}
+
+
+\section{Numerical Methods: Approximation of the underlying stochastic process}
+This type of approximation includes Monte Carlo simulation and lattice approaches like binomial or trinomial tree methods.
+
+\subsection{Monte Carlo simulation for European call option} 
+The starting point of a Monte Carlo simulation is the stochastic differential equation that describes the price behavior of the underlying assets:
+    \begin{align}
+        dS_t=\m S_tdt+\s S_tdW_t.
+    \end{align}
+    The parameters $\m$ and $\s$ can be estimated from financial data and have already been introduced in the various methods. One aspect to consider is that $\m$ has to be chosen in such a way that the generated path represents the underlying stochastic process in a risk-neutral world. Monte Carlo simulation first discretizes the domain of the stochastic differential equation and then iteratively generates path values of the stochastic process. From the simulation on the path, all of the option values can be calculated.
+    \begin{itemize}
+        \item[(1)] \textbf{Space discretization.} The interval $[0,T]$ is divided into $M$ equally sized subintervals of length $\D t$.
+        \item[(2)] \textbf{Simulate path values.} Given the initial value of $S_0$, the path values can be calculated iteratively by using the stochastic process:
+        \begin{align}
+            S_{m+1}=S_m+\D S_m=S_m+\m S_m\D t+\s S_m\D W_m,~~~~~~~m=0,\cdots,M-1.
+        \end{align}
+        where $\D W_m\sim N(0,m\D t)$. Denote the final value of the path by $S_T$.
+        \item[(3)] \textbf{Value the option.} Let $V_j$ be the value of European option with strike price $K$ at expiry date $T$, i.e. $V_j=\max\{S_T-K,0\}$ where index $j$ indicates that this is the value for the $j$-th simulated path. This simulation of paths has to be done many times with each simulation independent of each other. Let $J$ denote the number of simulations. Then the mean
+        \begin{align}
+            V\equiv\frac{1}{J}\sum_1^JV_j
+        \end{align}
+        gives the value of the option at expiry date, and $Ve^{-rT}$ gives the current discounted value of the option with $r$ as the risk-free interest rate.
+    \end{itemize}
+    
+\subsection{Monte Carol simulation for American call option} 
+Following \cite{schumerich2010real}, Monte Carlo simulation for American options is classified into four groups:
+    \begin{itemize}
+        \item[(1)] Combination procedures.
+        \item[(2)] Parameterization of early exercise boundary.
+        \item[(3)] Estimation of bounds.
+        \item[(4)] Approximation of value function.
+    \end{itemize}
+
+
+\subsection{Lattice Methods: \cite{cox1979option}}
+Another way of approximating the underlying stochastic process is done in lattices. It generally uses binomial or trinomial trees that start with the current underlying value as the start value. The lattice methods have advantages over intuitiveness, simplicity, and flexibility in handling different stochastic processes and several underlying values. Moreover, lattice methods can be applied into a variety of options, even a complex option. The main disadvantage of lattices, however, is that they only give the option value for one single underlying initial value. Therefore, the whole procedure has to be run many times with different initial values, which is time consuming.
+
+I would explain classical binomial tree method which is developed by \cite{cox1979option} and focus on the numerical algorithm, its implementation and numerical properties.
+
+\begin{itemize}
+    \item[(1)] \textbf{First binomial lattices on the underlying asset price.} The tree of prices is generated by working forward from current date to expiration. At each step, it is assumed that the price move up or down by specific factors, $u$ and $d$, per step of the tree. If $S$ is the current price, then the price in the next period will either be
+    \begin{align*}
+        &S_u=uS,~~~\text{with probability $p$,}\\
+        &S_d=dS,~~~\text{with probability $1-p$,}
+    \end{align*}
+    where $u>r_f>d$ and $r_f$ is risk-free interest rate.
+    
+    \item[(2)] \textbf{Second binomial lattices on the option value and get the final valuations.} Let $V$ be the value of a European call option on the underlying assets with a strike price of $K$ at one period prior to expiration. Then, the value of the option in the expiry date will either be
+    \begin{align*}
+        &V_u=\max\{uS-K,0\},~~~\text{with probability $p$,}\\
+        &V_d=\max\{dS-K,0\},~~~\text{with probability $1-p$.}
+    \end{align*}
+    
+    \item[(3)] \textbf{Find option values at earlier nodes.} Now the goal is to replicate the values of the option after time period $\D t$ through a portfolio $\Pi$ including $n$ amount of $S$ and $\D t$-year bond with nominal value $B$ and risk-free return $r_f$, i.e. $\Pi=nS+B$. Then, we can derive that
+    \begin{align*}
+        V=\frac{1}{r_f}\Big[pV_u+(1-p)V_d\Big]
+    \end{align*}
+    where $p=(r_f-d)/(u-d)$, $u=\exp\{\s\sqrt{\D t}\}=1/d$, and $\s$ is volatility.
+    
+\end{itemize}
+%\begin{align*}
+%    V,~~~~&\text{total value of an option},\\
+%    S,~~~~&\text{price of the twin security that is almost perfectly correlated with $V$},\\
+%    E,~~~~&\text{equity value of the option for the shareholder},\\
+%    r_f,~~~~&\text{risk-free interest rate},\\
+%    p,~~~~&\text{risk-neutral probability for up-movements of $V$ and $S$ per period},\\
+%    u,~~~~&\text{multiplicative factor for up-movements of $V$ and $S$ per period},\\
+%    d,~~~~&\text{multiplicative factor for down-movements of $V$ and $S$ per period}.\\
+%\end{align*}
+
+
+
+\section{Literature Review}
+\subsection{\cite{zhu2012new}}
+It has been argued that the classical Black-Scholes model with constant volatility is not realistic since it does not reflect random market movement well. Taking the argument, \cite{zhu2012new} incorporates regime-switching economy in the model, in which the key parameters of an underlying asset depend on the market mode that switches among a finite number of states. The regime-switching behavior captures the changing preferences and beliefs of investors concerning asset prices as the state of a financial market changes. \cite{zhu2012new} derives a solution for pricing European options. Performing Fourier inverse transform analytically, the final form of the closed-form solution is reduced from double-integral to a single-integral so that it improves computational efficiency and accuracy.
+
+In summary, \cite{zhu2012new} extends an analytical method we reviewed in order to value European options with regime switch by converting Black-Scholes PDEs into single-integral ODEs with Fourier transform.
+
+\begin{itemize}
+    \item[(1)] \textbf{Fluctuations of the underlying asset.}
+    \begin{align*}
+        \frac{dS}{S}=\m(X)dt+\s(X)dW
+    \end{align*}
+    where $X$ is a continuous-time Markov chain with a finite state space, i.e.
+    \begin{align*}
+        X=
+        \begin{cases}
+        1,              & \text{when the economy is in growth,} \\
+        2,              & \text{when the economy is in recession.}
+        \end{cases}
+    \end{align*}
+    Note that the drift rate $\m$ and the volatility $\s$ of the asset are functions of $X$. $W$ is the standard Wiener process and the process $X$ and $W$ are assumed to be independent.
+    
+    \item[(2)] \textbf{Transition between states.} The transition between states occurs as a Poisson process, i.e.
+    \begin{align*}
+        \Pr(t_{jk}>t)=\exp\{-\l_{jk}t\},~~~~~~~~j,k=1,2,~j\ne k.
+    \end{align*}
+    where $\l_{jk}$ is the transition rate from state $j$ to state $k$ and $t_{jk}$ is the time spent in state $j$ before entering state $k$.
+    
+    \item[(3)] \textbf{Black-Scholes equations for European put option value with regime-change.}
+    \begin{align*}
+        &\begin{aligned}
+        &\frac{\partial V_1}{\partial t}+\frac{1}{2}\s_1^2S^2\frac{\partial^2V_1}{\partial S^2}+rS\frac{\partial V_1}{\partial S}-rV_1=\l_{12}(V_1-V_2),\\
+        &V_1(S,T)=\max\{K-S,0\}\\
+        &\lim_{S\rightarrow0}V_1(S,t)=Ke^{-r(T-t)},\\
+        &\lim_{S\rightarrow\infty}V_1(S,t)=0,\\
+        \end{aligned}
+        &\begin{aligned}
+        &\frac{\partial V_2}{\partial t}+\frac{1}{2}\s_2^2S^2\frac{\partial^2V_2}{\partial S^2}+rS\frac{\partial V_2}{\partial S}-rV_2=\l_{21}(V_2-V_1),\\
+        &V_2(S,T)=\max\{K-S,0\}\\
+        &\lim_{S\rightarrow0}V_2(S,t)=Ke^{-r(T-t)},\\
+        &\lim_{S\rightarrow\infty}V_2(S,t)=0,\\
+        \end{aligned}
+    \end{align*}
+    
+    \item[(4)] \textbf{Change of variables for option valuation and Fourier transform.}
+    \begin{align*}
+        &q_j(x,\t_j)=\frac{e^xV_j(S,t)}{K},~~~~~x=\ln\bigg(\frac{S}{K}\bigg),~~~~~\t_j=\frac{\s_j^2}{2}(T-t),\\
+        &\mathcal{F}q_j(x,\t_j)=\int_{-\infty}^\infty e^{-i\w x}q_j(x,\t_j)dx=\hat{q}_j(\w,\t_j).
+    \end{align*}
+    for $j=1,2$ where $i=\sqrt{-1}$. Black-Scholes partial differential equations (PDEs) are transformed to two coupled ordinary differential equations (ODEs) in the Fourier space.
+    
+    \item[(5)] \textbf{Fourier inversion to analytically obtain the option value}
+    \begin{align*}
+        q_j(x,\t_j)=\frac{1}{2\pi}\int_{-\infty}^\infty e^{i\w x}\hat{q}_j(\w,\t_j)d\w,~~~~~~~~\text{for $i=1,2$}.
+    \end{align*}
+\end{itemize}
+
+
+\subsection{\cite{kitzing2017real}}
+\cite{kitzing2017real} builds a real option model on renewable energy investment project that incorporates both timing and sizing decision options and uncertainty factors. Given that several uncertainty factors are combined into a single stochastic process, it provides analytical solutions and corresponding policy analysis by comparing different support schemes.
+\begin{itemize}
+    \item[(1)] \textbf{Per-unit capacity profit of the investment project, $\pi(t)$.} Given $\pi(0)=\pi$, $\{\pi(t)\}$ follows a GBM:
+    \begin{align*}
+        d\pi=\m\pi dt+\s\pi dW.
+    \end{align*}
+    Note that several correlated uncertainty factors, such as power price and wind speed, are integrated into a single stochastic process.
+    
+    \item[(2)] \textbf{Capacity choice.} There are two option decisions, timing and capacity. Investment timing decision can be viewed as an option on the value of a project, for which capacity is optimally chosen. With backward induction, we first look over the capacity choice decisions. The problem is then
+    \begin{align*}
+        \max_{0\le q\le\bar{q}}\bigg\{V(\pi,q)\equiv E\bigg[\int_0^Te^{-rt}\Pi(\pi(t),q)dt-I(q)\bigg|\pi(0)=\pi\bigg]\bigg\}
+    \end{align*}
+    where $\Pi(\pi,q)$ is the immediate profit of the project, $I(q)$ is investment cost, and $\bar{q}$ is the capacity constraint. Assuming that $\Pi(\pi,q)=\pi Q(q)$ where $Q(q)=aq^b$ $(a>0,0<b<1)$ is the long-term average production function and $I(q)=Aq+B$ $(A,B>0)$, we obtain constrained optimal capacity choice
+    \begin{align*}
+        q^*(\pi)=\min\{\tilde{q}(\pi),\bar{q}\},~~~~~\text{where}~~\tilde{q}=\bigg(\frac{\g\pi ab}{A}\bigg)^{1/(1-b)}~\text{and}~~\g=\frac{1-e^{-(r-\m)T}}{r-\m}.
+    \end{align*}
+    
+    \item[(2)] \textbf{Investment timing.} At time $t$, the present value of the project when investing immediately is comared with the vlaue of waiting to invest at a later time. The corresponding Bellman equation is then
+    \begin{align*}
+        W(\pi)=\max\bigg\{\max_{0\le q\le\bar{q}}\{V(\pi,q)\},\frac{1}{1+rdt}E\Big[W(\pi+d\pi)\Big|\pi\Big]\bigg\}
+    \end{align*}
+    With Ito's lemma and three boundary conditions, the investment thresholds are given and the closed-form analytical solution can be derived: As soon as $\pi(t)$ reaches $\pi^*$, the investment shall be undertaken where
+    \begin{align*}
+    \pi^*=
+    \begin{cases}
+    \frac{A}{\g ab}\bigg(\frac{Bb\b}{A(\b(1-b)-1)}\bigg)^{1-b},~~~~~&\tilde{q}(\pi^*)<\bar{q},\\
+    \frac{1}{\g a\bar{q}^b}(A\bar{q}+B)\frac{\b}{\b-1}~~~~~~,~~~&\tilde{q}(\pi^*)\ge\bar{q}.
+    \end{cases}
+    \end{align*}
+\end{itemize}
+
+
+\subsection{\cite{hossiso2017value}}
+Even though there are hundreds of typos and mathematical errors, \cite{hossiso2017value} analyzes the value of a switching option in a flexible biorefinery plant that produces ethanol $(e)$ and sugar juice $(s)$ in a single plant using energy beets. A real options approach is used to compute threshold prices and optimal switching decision rules for switching between sugar and ethanol modes.
+
+In summary, this paper extends real option model on optimal timing of investment with two stochastic price processes and some simplifying assumptions, which is based on Chapter 5 in \cite{dixit1994investment}.
+
+\begin{itemize}
+    \item[(1)] \textbf{Stochastic prices process for $e$ and $s$.}
+    \begin{align*}
+        dP_j=\m_jP_jdt+\s_jdW_j,~~~~~j=s,e.
+    \end{align*}
+    where $dW_j=\ve_{tj}\sqrt{dt}$ and $\ve_{tj}\sim N(0,1)$. Note that the increment of a Wiener process is $dW$ with $E[dW_j^2]=dt$ for each $j$ and $E[dz_e,dz_s]=\rho_{es}dt$ where $\rho_{es}=cov(dz_e,dz_s)/\sqrt{var(dz_e),var(dz_s)}.$
+    
+    \item[(2)]
+    \begin{align*}
+        V=\int_0^Te^{-rt}[P_e(t)-P_s(t)]dt
+    \end{align*}
+    Replacing $P_j(t)$ by $E[P_j(t)]=P_j(0)e^{\m_jt}$ for each $j=s,e$ with the stochastic price process,
+    \begin{align*}
+        V=P_e(0)\cdot\frac{e^{(\m_e-r)T}-1}{\m_e-r}-P_s(0)\cdot\frac{e^{(\m_s-r)T}-1}{\m_s-r}.
+    \end{align*}
+    
+    \item[(3)] \textbf{Obtain optimal switching threshold price and optimal decision rule.}The optimal decision rule for switching to sugar production mode is when its price $P_s$ is greater than the threshold value $P_s^*$, otherwise the biorefinery plants is more profitable to comtinue producing ethanol.
+    \begin{align*}
+        P_s^*=\frac{\b}{\b-1}\cdot\frac{e^{(\m_e-r)T}-1}{e^{(\m_s-r)T}-1}\cdot\frac{\m_s-r}{\m_e-r}P_e,
+        ~~~~~\text{where}~~\b=\frac{1}{2}-\frac{\a_e-\a_s}{\s^2}\sqrt{\bigg(\frac{\a_e-\a_s}{s_2}-\frac{1}{2}\bigg)^2+2\frac{(r-\a_s)}{\s^2}}
+    \end{align*}
+\end{itemize}
+
+
+\subsection{\cite{nembhard2005real}}
+\cite{nembhard2005real} builds a model of workforce cross-training in a production system using real option framework. The model is an approximation of valuing American call option using binomial lattices.
+\begin{itemize}
+    \item[(1)] \textbf{Traditional NPV for the production system using a specialized and a cross-trained workforce.}
+    
+    \item[-] Denote $P$ as current sales price, $n_W$ as the number of workers in the system, $L$ as the present value of direct labor cost, $C$ as unit production cost other than $L$, and $F$ as the present value of fixed cost of production. Let $Q_S$ and $Q_C$ be the discounted output of the production system with a specialized and a cross-trained workforce, respectively, during a decision horizon $T$.
+    
+    \item[-] Establish first the NPV of the system under a specialized workforce as
+        \begin{align*}
+            s_0=Q_S(P-C)-(n_WL+F).
+        \end{align*}
+    
+    \item[-] Establish the NPV of the system under a cross-trained workforce as
+        \begin{align*}
+            NPV_D=\max\{Es_0-K,s_0\}
+        \end{align*}
+    where $E$ is the expansion factor of the production value measure by
+        \begin{align*}
+            E=\frac{Q_C(P-C)-(n_WL+F)}{Q_S(P-C)-(n_WL+F)},
+        \end{align*}
+    and $K=K_p+K_l$ is the sum of fixed and variable costs of cross-training.
+    
+    \item[-] $NPV_D$ does not incorporate the values from workforce flexibility and adaptability.
+    
+    \item[(2)] \textbf{Extended NPV by using real option framework--binomial lattices}
+    
+    \item [-] Two binomial lattices are required, lattices for underlying asset prices and option valuations, as we reviewed above. To create the lattice of the underlying asset prices, we start with $s_0$ then multiply it by the up and the down factors to create up and down brances:
+        \begin{align*}
+            s_t^i=s_0u^id^{t-i},~~~~~t=0,\cdots,n-1,~~i=0,\cdots,t,
+        \end{align*}
+        where $u=\exp^{\s\sqrt{\D T}}=1/d$ and $p=(\exp\{r\D T\}-d)/(u-d)$. 
+        
+        \item[-] Establish the lattice values for option of cross-training as
+        \begin{align*}
+            c^i_t=\max\{Es^i_t-K,c^{i*}_t\},~~~~t=0,\cdots,n-1,~~i=0,\cdots,t,
+        \end{align*}
+        where 
+        \begin{align*}
+            c^{i*}_t=
+            \begin{cases}
+            e^{-r\D T}[pc^i_{t+1}+(1-p)c^{i+1}_{t+1}],~~~~&t=0,\cdots,n-1,~~i=0,\cdots,t,\\
+            s^i_t,~~~~&t=n,~~~i=0,\cdots,t.
+            \end{cases}
+        \end{align*}
+    
+    \item[-] With backward induction in the option valuation lattices, we obtain the NPV within real option framework, $NPV_{RO}$, and get the financial value of cross-training $V_C$ by
+        \begin{align*}
+            V_C=NPV_{RO}-NPV_D
+        \end{align*}
+        $V_C$ compares the value of cross-training versus specialization.
+\end{itemize}
+
+
+\subsection{\cite{fisch2014timing}}
+With a switching option in real options framework, \cite{fisch2014timing} empirically analyzes optimal timing of new/old product replacements under uncertainty. It develops a survey data on products substitution and applies it with OLS regression to test several hypothesis in that delaying the market launch under a variety of scenarios affects the producer's competitive position.
+
+
+
+
+\section{Beyond Valuations: The Value of Flexibility}
+
+We have reviewed analytical and numerical approaches on valuing American and European options based on \cite{black1973pricing}. American option looks attractive compared to European option for the buyers as well as the sellers of the option. This is because the buyers could enjoy the additional freedom, since the option gives the owner the right to exercise at any time before the expiry date, and the sellers could earn extra money if the owner of the option does not choose the optimal time for exercising it. Given this, a very natural question to arise is how we measure the values of having such flexibility in American option. The strategies for measuring the value of flexibility in financial options can be closely related to valuing the flexibility in real option framework. 
+
+I would suggest the value of flexibility from the financial option can be computed as a difference between the values of American and European options which have same conditions (i.e. striking price, economic conditions) except for the right of timing to exercise. Provided that all other conditions hold, the discrepancies in the option values would reflect the benefits both the buyers and the sellers could enjoy from American option that European option has missed. If the option values are measured in numerical approaches, it should be done by applying same strategy to value both options for consistency. For example, we cannot compare the values from the finite difference approach with the values from Monte Carlo simulation.
+
+
+\section{A Simple Model of Flexibility Option}
+Cnosider the following problem: at what point is it optimal to pay sunk cost $I$ in return for a investment project whose value is $x$ given that $x$ evolves according to the following geometric Brownian motion:
+\begin{align}
+    \frac{dx}{x}=\a(x,m,t)dt+\s(x,m,t)dW
+\end{align}
+Let $\pi(x,m,t)$ be the profit flow where $m$ is a control variable. In case of option to defer, we could let $m$ be a binary variable, whose value 0 represents waiting and 1 represents investing. Given that $r$ is he discount rate per unit of time, the Bellman equation becomes
+\begin{align}
+    V(x,t)=\max_m\Big\{\pi(x,m,t)\D t+\frac{1}{1+r\D t}E\Big[V(x',t+\D t)\Big|x,m\Big]\Big\}
+\end{align}
+Multiply by $(1+r\D t)$ and rearrange to write
+\begin{align*}
+    r\D(t)V(x,t)=\max_m\Big\{\pi(x,m,t)\D t(1+r\D t)+E[\D V]\Big\}
+\end{align*}
+where $\D V=V(x',t+\D t)-V(x,t)$. Divide by $\D t$ and let $\D t\rightarrow0$. We then obtain
+\begin{align}
+    rV(x,t)=\max_m\Big\{\pi(x,m,t)+\frac{1}{dt}E[dV]\Big\}
+\end{align}
+Note that the expectation $E[dV]$ is conditioned on $x$ and $m$, and also note that the changes in both $x$ and $t$ affect the change in $V(x,t)$ over the interval $dt$.
+
+
+\section{Valuation of Option to Defer}
+Because the investment option itself yields no cash flow until the investment is undertaken, the only return from holding the option is its capital appreciation, i.e. $\pi(x,m,t)=0$. Hence, the Bellman equation in this case is
+\begin{align}
+    rVdt=E[dV].
+\end{align}
+It can be interpreted that over a time period $dt$, the total expected return on the investment option, $rVdt$, is equal to its expected rate of capital appreciation.
+
+By expanding $dV$ from Ito's Lemma and substituting equation (2.1) for $dx$ into the experession and noting that $E[dW]=0$ and $E[dW^2]=dt$ gives
+\begin{align*}
+    E[dV]=\a x \frac{\partial V}{\partial x}dt+\frac{1}{2}s^2x^2\frac{\partial^2 V}{\partial x^2}dt.
+\end{align*}
+After dividing through by $dt$, the Bellman equation becomes
+\begin{align}
+    \a x \frac{\partial V}{\partial x}+\frac{1}{2}s^2x^2\frac{\partial^2 V}{\partial x^2}-rV=0.
+\end{align}
+In addition, $V$ must satisfy the following boundary conditions:
+\begin{align}
+    V(0)&=0\\
+    V(x^*)&=x^*-I
+\end{align}
+
+
+\section{Compound Options}
+To understand the meaning of compound option, we first discuss the theory of two-stage compound option. Consider the constituents of a firm’s capital structure are stock $(S)$ and bonds $(B)$ and the firms has discount bonds outstanding with face value $M$ and a maturity of $T$ years, and suppose the firm plans to liquidate in $T$ years and pay off the bonds. If the value of the firm $V$ is less than $M$ at the time of liquidation, the bondholders will get assets $V$ and stockholders get nothing; and if $V$ is greater than $M$, bondholders get $M$ and stockholders receive $V-M$, where the payment to stockholders is $\max\{V-M,0\}$. Therefore, a call on the firm's stock can be regarded as an option, which is called a compound option.
+
+A compound options is simply defined as an option on an option. \cite{geske1979valuation} argues that an option on the stock is effectively a compound option, $C$, because the stock, $S$, can be regarded as an option of the value of firm, $V$. This situation can be represented functionally as $C=C(S,t)=C(S(V,t),t)$. By extending \cite{black1973pricing}, it evaluates the value of compound option. 
+
+To derive the valuation formula for the option on the stock, assume that the firm has a single debt with a face value $K_2$ to be paid at time $T_2$ and the option has a strike price $K_1$ and the expiration date $T_1$.
+
+Let the value of firm, $V$, follow a geometric Brownian motion as in \cite{black1973pricing},
+\begin{align*}
+    \frac{dV}{V}=\a_Vdt+\s_VdW.
+\end{align*}
+Because of $C=C(V,t)$, the dynamics of the option on the stock can be expressed by Ito's Lemma
+\begin{align*}
+    dC=\frac{\partial C}{\partial t}dt+\frac{\partial C}{\partial V}dV+\frac{1}{2}\s_V^2V^2\frac{\partial^2C}{\partial V^2}dt=\s_VV\frac{\partial C}{\partial V}dW+\bigg(\a_VV\frac{\partial C}{\partial V}+\frac{1}{2}\s_V^2V^2\frac{\partial^2C}{\partial V^2}+\frac{\partial C}{\partial V}\bigg)dt.
+\end{align*}
+Following an approach of three security portfolio in \cite{merton1973theory} to create zero net investment, we obtain the following partial differential equation
+\begin{align}
+    \frac{\partial C}{\partial t}=rC-rV\frac{\partial C}{\partial V}-\frac{1}{2}\s_V^2V^2\frac{\partial^2C}{\partial V^2}.
+\end{align}
+The option on the stock is given as a function of $V$ and $t$. In addition, it is subject to a boundary condition at $T_1$, i.e. $C(T_1)=\max\{0,S(T_1)-K_1\}$.
+
+Since the stock is an option on the value of firm, i.e. $S=S(V,t)$, it also follows a related diffusion and by Ito's Lemma,
+\begin{align*}
+    dS=\frac{\partial S}{\partial t}dt+\frac{\partial S}{\partial V}dV+\frac{1}{2}\s_V^2V^2\frac{\partial^2S}{\partial V^2}dt=\s_VV\frac{\partial S}{\partial V}dW+\bigg(\a_VV\frac{\partial S}{\partial V}+\frac{1}{2}\s_V^2V^2\frac{\partial^2S}{\partial V^2}+\frac{\partial S}{\partial V}\bigg)dt.
+\end{align*}
+Following \cite{merton1973theory}, the stock equilibrium path can be described by the following similar partial differential equation
+\begin{align}
+    \frac{\partial S}{\partial t}=rS-rV\frac{\partial S}{\partial V}-\frac{1}{2}\s_V^2V^2\frac{\partial^2S}{\partial V^2}.
+\end{align}
+The equation is also subject to a boundary condition at time $T_2$, i.e. $S(T_2)=\max\{0,V(T_2)-K_2\}$.
+
+The solution to (4.2) is independent of (4.1) and is the well-known Black-Scholes equation
+\begin{align}
+    S=S(V,t)=VN_1\Big(h_2+\s_V\sqrt{T_2-t}\Big)-K_2e^{-r(T_2-t)}N_1\Big(h_2\Big)
+\end{align}
+where
+\begin{align*}
+    h_2&=\frac{\ln(V/K_2)+(r-(1/2)\s_V^2)(T_2-t)}{\s_V\sqrt{T_2-t}}
+\end{align*}
+and $N_1(\cdot)$ is the univariate cumulative normal distribution function.
+
+\cite{geske1979valuation} shows that given the two partial differential equations (4.1) and (4.2) and their boundary conditions, the solution for the value of the compound option can be founded by Fourier transform.
+\begin{align}
+    \begin{aligned}
+    C=&VN_2\Big(h_1+\s_V\sqrt{T_1-t}\Big),h_2+\s_V\sqrt{T_2-t},\sqrt{(T_1-t)/(T_2-t)}\Big)\\
+      &~~~~~~-K_2e^{-r(T_2-t)}N_2\Big(h_1,h_2,\sqrt{(T_1-t)/(T_2-t)}\Big)-K_1e^{-r(T_1-t)}N_1\Big(h_1\Big)
+    \end{aligned}
+\end{align}
+where
+\begin{align*}
+    h_1&=\frac{\ln(V/\bar{V})+(r-(1/2)\s_V^2)(T_1-t)}{\s_V\sqrt{T_1-t}},\\
+    h_2&=\frac{\ln(V/K_2)+(r-(1/2)\s_V^2)(T_2-t)}{\s_V\sqrt{T_2-t}},
+\end{align*}
+and $\bar{V}$ is the value of $V$ such that 
+\begin{align*}
+    S(T_2-T_1)-K_1=VN_1\Big(h_2+\s_V\sqrt{T_2-T_1}\Big)-K_2e^{-r(T_2-T_1)}N_1(h_2)-K_1=0.
+\end{align*}
+$N_2(h_1,h_2,\rho)$ is the bivariate cumulative normal distribution function with $h_1$ and $h_2$ as upper integral limits and $\rho$ as the correlation coefficient.
+
+
+\section{Applications}
+This section exemplifies some applications of real option analysis with various issues. It is from 'Notes on Applying Real Options to Climate Change Adaptation Measures' by Dobes (2010).
+
+\subsection{Grassland Investment and Switch}
+Australian farmers have created real options for their herds by acquiring a string of contiguous grasslands north to south and east to west across the continent. Dry conditions on any one particular grassland could be overcome by moving cattle to other grasslands that have sufficient feed and water.  With strategically located fattening properties, as well as holding properties near rail-heads to cities, they could maximize prices received for his cattle on the basis of market information.
+
+Farmers' decision to make grasslands can be related to investments with multiple real options: (1) wait to invest in grasslands and (2) switch uses.
+
+\subsection{Airport runways}
+If temperature significantly increases, planes usually need a longer take-off to develop sufficient lift (More powerful engines are an alternative, but they would also create more noise). An airport owner considering the future might decide to build a longer runway now. But immediate construction would mean that the full cost would be incurred up-front and temperatures might ultimately not rise as fast or as high as expected on the basis of current belief. 
+ 
+Facing uncertainty about the future, a better alternative for the airport owner might be to purchase or earmark additional land for a runway extension but to wait until temperatures increased significantly before undertaking its construction.  An even better alternative would be to purchase a (financial) option to buy the land if temperatures rise by a specific date in the future. 
+
+\subsection{Flood defense in low-lying area}
+Flood damages in coastal and riverside areas due to rising sea levels are commonly cited effects of climate changes. The popular prescription is to build sea walls or levee banks to protect nearby lives and properties. However, such policies are somewhat ambiguous in how high a wall or levee bank should be, or when it should be built. In the absence of information, the policy may advice to build the defenses with a worst-case scenario. But the worst-case scenario can be unnecessarily wasteful of community resources, and even worst-case scenarios change over time as more information about climate change becomes available. 
+ 
+In the absence of reliable information about future river or sea levels, a better alternative would be to build a solid base that is capable of supporting a high (worst-case or higher) wall, but only build a wall high enough to offer protection for current circumstances, or perhaps no wall at all.  The wall can be raised later if the foundation is appropriately designed, or the base can just be used for sandbagging for the occasional flood or king tide.  Inflatable flexible PVC tubes, so-called Beaver flood barrier, that are filled with water and can be stacked on top of each other to provide a further option that is faster and easier to erect than sandbag barriers. 
+ 
+In other words, the option created by building only a base or low wall means that the full cost of a higher, worst-case wall is not incurred until it is actually required due to chronic or intensified flooding.
+
+
+\section{Valuation of Multi-Option Investments}
+\subsection{Log-Transformed Binomial Method: Trigeorgis (1991b, 1993)}
+
+Let the value of the underlying asset, $V$, follows a diffusion process of the form,
+\begin{align*}
+    dV/V=\a dt+\s dz.
+\end{align*}
+$V$ is the present value of the expected cash flow from immediately undertaking a real project. It is the gross project value, not including any required investment cost outlays or any imbedded real options.
+
+In any differential time interval, $dt$, $X\equiv\log V$ follows an arithmetic Brownian motion. Under risk neutrality, $\a=r$ and $dX=\log(V_{t+dt}/V_t)=(r-\s^2/2)dt+\s dz$ with $r$ being the risk-free interest rate. Note with $\m\equiv r/\s^2-1/2$ that
+\begin{align*}
+    E(dX)=(r-\s^2/2)dt\equiv\m K~~~~\text{and}~~~~Var(dX)=\s^2dt\equiv K.
+\end{align*}
+
+We approximate the continuous process above by subdividing the total period of project life, $T$, into $N$ equally discrete subintervals of length $\t=T/N$ so that $T=N\t$. Thus, $\s^2dt$ can be approximated from $\s^2T/N$. Within each discrete subinterval $\t$, $X$ follows a Markov random walk moving up and down by an amount $\D X\equiv H$ with probabilities $P$ and $1-P$, respectively. The mean and variance of this discrete-time Markov process are then
+\begin{align*}
+    E(\D X)=2P\D X-\D X=2PH-H~~~~\text{and}~~~~Var(\D X)=(\D X)^2-[E(dX)]^2=H^2-[E(dX)]^2.
+\end{align*}
+
+For the discrete-time process to be consistent with the continuous diffusion process in (1), their corresponding means and variances should be equal,
+\begin{align*}
+    &2P\D X-\D X=(r-\s^2/2)dt,~~~~~\text{so}~~~~~P=\frac{1}{2}\Big[1+\Big(r-\frac{\s^2}{2}\Big)dt\Big]\Big/\D X=\frac{1}{2}\Big(1+\frac{\m K}{H}\Big);\\
+    &(\D X)^2-[E(dX)]^2=\s^2dt,~~~~~~~~~~\text{so}~~~~~H=\sqrt{\s^2dt+[E(dX)]^2}=\sqrt{K+(\m K)^2}.
+\end{align*}
+
+The log-transformed binomial algorithm consists of four main steps: parameter value specification, preliminary sequential calculation, determination of terminal values, and backward iterative process.
+
+\begin{itemize}
+    \item[(1)] \textbf{Parameter value specification}: parameters affecting option values, i.e. $V,r,\s^2,T$ and the investment cost outrays $I$, are specified along with the desired number of subintervals $N$. The cash flows $CF$, as well as the type, timing, and other characteristics of the various imbedded options must be specified as well.
+    
+    \item[(2)] \textbf{Preliminary sequential calculation}: The second step involves preliminary calculations needed for the rest of the algorithm. The algorithm sequentially determines the following key variables:
+    \begin{itemize}
+        \item[-] time-step: $K$ from $\s^2T/N$
+        \item[-] drift: $\m$ from $r/\s^2-1/2$
+        \item[-] state-step: $H$ from $\sqrt{K+(\m K)^2)}$
+        \item[-] probability: $P$ from $(1+\m K/H)/2.$
+    \end{itemize}
+    
+    \item[(3)] \textbf{Determination of terminal values}: For each state $i$, the algorithms fill in the underlying asset values from $V(i)=\exp\{X_0+iH\}$ (since $X\equiv\log X=X_0+iH$); and the total investment opportunity values from the terminal condition $R(i)=\max\{V(i),0\}$.
+    
+    \item[(4)] \textbf{Backward iterative process}: For each time step $j=N,\cdots,1$ and every second state $i$, calcualte opportunity values using information from step $j+1$.
+    \begin{align*}
+        R'(i)=e^{-r(K/\s^2)}[PR(i+1)+(1-P)R(i-1)].
+    \end{align*}
+    Adjustments for the cash flows (dividends) and the various real options imbedded in the projects need to be make at appropriate times within the backward iterative process of the fourth step.
+\end{itemize}
+
+
+\subsection{Dynamic Programming Framework: \cite{kulatilaka1993value} and \cite{kulatilaka1995operating}}
+Let $X_t$ be the underlying asset price at time $t$ which follows a diffusion process of the form,
+\begin{align*}
+    dx_t/x_t=\a dt+\s dz_t.
+\end{align*}
+We define the various operating modes of the project using profit functions. The operating modes may characterize different production processes as well as states that describe waiting-to-invest, shutting down, abandoning, and switching project. Suppose a project consists of $M$ modes and a mode is denoted by $m\in\{1,\cdots,M\}$.
+
+The value of a \textit{fixed technology} project of life $T$ periods that is dedicated to model $m=\bar{m}$ can be expressed as
+\begin{align*}
+    V(x_0,\bar{m})=E_{x_0}\bigg[\int_0^T\rho^t~\pi(x_t,\bar{m})dt\bigg]
+\end{align*}
+where $E_{x_0}[\cdot]$ is the risk-neutral expectation operator conditional on information at time $0$, i.e., on the realization of $\th_0$, and $\rho$ is the risk-free discount factor. Expected values are obtained as probability weighted sums:
+\begin{align*}
+    E_{x_{t-dt}}[\pi(x_t,m)]=\sum_{x_t}\pi(x_t,m)\cdot p(x_{t-dt},x_t).
+\end{align*}
+where $p(x_{t-dt},x_t)$ is the risk-neutral probability of a transition between the states $x_{t-dt}$ and $x_t$ during the time interval $(t-dt,t)$.
+
+The value of a general \textit{flexible} project at the beginning of the last period of operation depends on $x_T$. In addition, since switching between the modes incurs costs, the mode of operation during the previous period will also influence the current value of the flexible project $V$. Then, the dynamic programming equation for $V$ at any time $t$ can be written as
+\begin{align*}
+    V(x_t,m)=\max_{m'}\bigg\{\pi(x_t,m')-c(m,m')+\rho E_{x_t}\Big[V(x_{t+dt},m')\Big]\bigg\}
+\end{align*}
+for $m,m'=1,\cdots,M$, $t=0,\cdots,T-dt$ where $c(m,m')$ is the cost of switching from mode $m$ to mode $m'$. As for a boundary condition,
+\begin{align*}
+    V(x_{T-dt},m)=\max_{m'}\bigg\{\pi(x_{T-dt},m')-c(m,m')\bigg\}.
+\end{align*}
+To illustrate the valuation of the flexibility option by applying it to a project that offers options to wait-to-invest and to switch, I characterize the firm before it undertakes the investment as being in mode 1 ("waiting-to-invest"). Once investment outlay $c(1,2)$ is made, the firm will be moving into mode 2 at which the firm creates cash flows from operating project after the building stage. While it is in the operation, the firm has the ability to switch its production from $x_1$ and $x_2$ and vice versa. Switching production will incur certain amount of costs, $c(2,3)$ or $c(3,2)$.
+
+
+\begin{center}
+\begin{tikzpicture}
+    \draw (15,5)--(0,0)--(15,-5)--cycle;
+    \foreach \x in {0,...,15} \draw (\x, 0.1) -- (\x, -0.1);
+    \draw (0,0)--(15,0) node[pos=0, left=3pt]{$X_1$} node[pos=0, above=2pt]{0} node[pos=2/15, above=2pt]{2} node[pos=5/15, above=2pt]{5} node[pos=1, above=2pt]{$T=15$};
+    \draw[<->] (2,1)--(5,1) node[above=2pt, pos=0.5]{building stage};
+    \draw[|<->] (5,1)--(15,1) node[above=2pt, pos=0.5]{operating stage (cash flow)};
+    \draw[->] (2,0)--(2,-2) node[below=30pt, pos=0.5]{Defer (up to $T_1=2$yrs)} node[below=45pt, pos=0.5]{$R'=\max\{e^{-r\t}E(R_{j+1},R_j)$\}};
+    \draw[|<->|] (5,-2)--(15,-2) node[above=2pt, pos=0.5]{Switch anytime ($X_1\rightarrow X_2$)};
+\end{tikzpicture}
+\end{center}
+
+\begin{center}
+\begin{tikzpicture}
+    \draw (15,5)--(0,0)--(15,-5)--cycle;
+    \foreach \x in {0,...,15} \draw (\x, 0.1) -- (\x, -0.1);
+    \draw (0,0)--(15,0) node[pos=0, left=3pt]{$X_2$} node[pos=0, above=2pt]{0} node[pos=2/15, above=2pt]{2} node[pos=5/15, above=2pt]{5} node[pos=1, above=2pt]{$T=15$};
+    \draw[<->] (2,1)--(5,1) node[above=2pt, pos=0.5]{building stage};
+    \draw[|<->] (5,1)--(15,1) node[above=2pt, pos=0.5]{operating stage (cash flow)};
+    \draw[|<->|] (5,-2)--(15,-2) node[above=2pt, pos=0.5]{Switch anytime ($X_2\rightarrow X_1$)};
+\end{tikzpicture}
+\end{center}
+
+
+
+
+ 
+\bibliographystyle{chicago}
+\bibliography{RealOption}
+
+
+%In characterizing firm's exertion of an option, I use the concept of a ``mode of operation''. Modes may be ``invest'' versus ``wait-to-invest'', ``use gas'' versus ``use oil'', or ``continue operations'' versus ''abandon project''. Each mode of the project is associated with the firm's profit. Assume that there exists $M$ number of modes, indexed by $m\in\{1,\cdots,M\}$. and characterized by a profit function $\pi^m$, for $m$. These profit functions are defined 
+
+
+\end{document}
+
